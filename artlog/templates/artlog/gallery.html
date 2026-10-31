@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}My Gallery — SylvesterNotCute{% endblock %}
+
+{% block content %}
+<section class="panel page-section">
+  <h1 class="section__title">My Gallery</h1>
+  <div class="rule"></div>
+
+  <div class="gallery-grid">
+    {% for art in arts %}
+      <a class="gallery-card" href="{% url 'artlog:detail' art.pk %}">
+        <img src="{{ art.image.url }}" alt="{{ art.title }}">
+        <span>{{ art.title }}</span>
+      </a>
+    {% empty %}
+      <p class="empty">No artworks yet.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

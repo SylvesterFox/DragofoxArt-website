@@ -1,0 +1,56 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}SylvesterNotCute — Furry Artist{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+  <div class="banner">
+    I CREATE ARTWORK MEANT FOR ADULT AUDIENCE. PLEASE LEAVE THIS PAGE IF YOU'RE A MINOR.
+  </div>
+
+  <header class="panel header">
+    <a class="brand" href="{% url 'home' %}">
+      <img class="brand__logo" src="{% static 'img/logo.png' %}" alt="">
+      <span class="brand__text">
+        <span class="brand__name">Sylvester<span>Not</span>Cute</span>
+        <span class="brand__tag">Furry Artist</span>
+      </span>
+    </a>
+
+    <!-- TODO: подставьте свои ссылки вместо "#" -->
+    <div class="socials">
+      <a class="btn-icon" href="#" aria-label="Telegram"><img src="{% static 'img/icon-telegram.svg' %}" alt=""></a>
+      <a class="btn-icon" href="#" aria-label="Art profile"><img src="{% static 'img/icon-art.svg' %}" alt=""></a>
+      <a class="btn-icon" href="#" aria-label="Bluesky"><img src="{% static 'img/icon-bluesky.svg' %}" alt=""></a>
+      <a class="btn-icon" href="#" aria-label="X"><img src="{% static 'img/icon-x.svg' %}" alt=""></a>
+      <a class="btn-icon" href="#" aria-label="TikTok"><img src="{% static 'img/icon-tiktok.svg' %}" alt=""></a>
+      <a class="btn-icon" href="#" aria-label="YouTube"><img src="{% static 'img/icon-youtube.svg' %}" alt=""></a>
+    </div>
+
+    <div class="header__right">
+      <a class="btn btn-sfw" href="#" aria-label="SFW mode">SFW</a>
+      <a class="btn-icon btn-flag" href="#" aria-label="Language"><img src="{% static 'img/flag-us.png' %}" alt=""></a>
+    </div>
+  </header>
+
+  <nav class="panel nav" aria-label="Main">
+    {% with section=request.resolver_match %}
+    <a class="btn" href="{% url 'home' %}"{% if section.url_name == 'home' %} aria-current="page"{% endif %}>Home</a>
+    <a class="btn" href="{% url 'artlog:gallery' %}"{% if section.namespace == 'artlog' %} aria-current="page"{% endif %}>My Gallery</a>
+    {% endwith %}
+    <a class="btn" href="#">Vlog</a>
+    <a class="btn" href="#">My Project</a>
+    <a class="btn btn--right" href="#">Donate</a>
+  </nav>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+</body>
+</html>

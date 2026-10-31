@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="panel hero">
+  <p class="hero__lead">
+    Hewwo! My name is Sylvester, and I create furry-themed artwork!<br>
+    I hope you’ll enjoy my work &gt;~&lt;
+  </p>
+  <div class="rule"></div>
+  <p class="hero__status">
+    COMMISSIONS STATUS:
+    {% if commissions_open %}<span class="is-open">OPEN</span>{% else %}<span class="is-closed">CLOSED</span>{% endif %}
+  </p>
+  <!-- TODO: подставьте свои ссылки вместо "#" -->
+  <div class="hero__links">
+    <a class="btn btn--wide" href="#">Commission Form</a>
+    <a class="btn btn--narrow" href="#">Queue</a>
+    <a class="btn btn--wide" href="#">Terms of Service</a>
+  </div>
+</section>
+
+<section class="panel section">
+  <h2 class="section__title">Price Lists and Examples</h2>
+  <div class="rule"></div>
+
+  <div class="table-wrap">
+    <table class="prices">
+      <thead>
+        <tr><th>Service</th><th>Price (USD)</th></tr>
+      </thead>
+      <tbody>
+        {% for group, items in price_groups %}
+          <tr class="cat"><td>{{ group }}</td><td></td></tr>
+          {% for name, price in items %}
+            <tr><td>{{ name }}</td><td class="price">${{ price }}</td></tr>
+          {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="section__title portfolio-title">My Portfolio</h2>
+  <div class="rule"></div>
+
+  <div class="thumbs">
+    {% for art in latest_arts %}
+      <a href="{% url 'artlog:detail' art.pk %}"><img src="{{ art.image.url }}" alt="{{ art.title }}"></a>
+    {% empty %}
+      <p class="empty">No artworks yet.</p>
+    {% endfor %}
+  </div>
+
+  <div class="section__more">
+    <a class="btn" href="{% url 'artlog:gallery' %}">View full Gallery</a>
+  </div>
+</section>
+
+{% endblock %}
