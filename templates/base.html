@@ -1,4 +1,4 @@
-{% load static %}
+{% load static artlog_tags %}
 <!doctype html>
 <html lang="en">
 <head>
@@ -23,13 +23,11 @@
     </a>
 
     <!-- TODO: подставьте свои ссылки вместо "#" -->
+     {% social_links as socials %}
     <div class="socials">
-      <a class="btn-icon" href="#" aria-label="Telegram"><img src="{% static 'img/icon-telegram.svg' %}" alt=""></a>
-      <a class="btn-icon" href="#" aria-label="Art profile"><img src="{% static 'img/icon-art.svg' %}" alt=""></a>
-      <a class="btn-icon" href="#" aria-label="Bluesky"><img src="{% static 'img/icon-bluesky.svg' %}" alt=""></a>
-      <a class="btn-icon" href="#" aria-label="X"><img src="{% static 'img/icon-x.svg' %}" alt=""></a>
-      <a class="btn-icon" href="#" aria-label="TikTok"><img src="{% static 'img/icon-tiktok.svg' %}" alt=""></a>
-      <a class="btn-icon" href="#" aria-label="YouTube"><img src="{% static 'img/icon-youtube.svg' %}" alt=""></a>
+      {% for s in socials %}
+        <a class="btn-icon" href="{{ s.url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ s.title }}" title="{{ s.title }}"><img src="{{ s.icon.url }}" alt=""></a>
+      {% endfor %}
     </div>
 
     <div class="header__right">
