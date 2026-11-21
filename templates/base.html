@@ -5,7 +5,41 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}SylvesterNotCute — Furry Artist{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/background.css' %}">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <script>
+  (function () {
+    var root = document.documentElement;
+    var cs = getComputedStyle(root);
+    function ms(name, fallback) {
+      var v = cs.getPropertyValue(name).trim(), n = parseFloat(v);
+      return isNaN(n) ? fallback : (/ms$/.test(v) ? n : n * 1000);
+    }
+    var flow = ms('--bg-flow', 54000), drift = ms('--bg-drift', 36000);
+
+    var t0 = 0;
+    try {
+      t0 = parseInt(sessionStorage.getItem('bgT0'), 10);
+      if (!t0) { t0 = Date.now(); sessionStorage.setItem('bgT0', t0); }
+    } catch (e) { t0 = 0; }
+
+    function phase(dur) { return Math.max(0, Date.now() - t0) % (2 * dur); }
+
+    root.style.setProperty('--bg-flow-delay', -phase(flow) + 'ms');
+    root.style.setProperty('--bg-drift-delay', -phase(drift) + 'ms');
+
+    window.addEventListener('pageshow', function (e) {
+      if (!e.persisted) return;
+      document.getAnimations().forEach(function (a) {
+        var dur = a.animationName === 'bg-flow' ? flow : a.animationName === 'bg-drift' ? drift : 0;
+        if (!dur) return;
+        a.effect.updateTiming({ delay: -phase(dur) });
+        a.currentTime = 0;
+      });
+    });
+  })();
+</script>
+  
 </head>
 <body>
 

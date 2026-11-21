@@ -1,7 +1,8 @@
 from django.contrib import admin
+from django.urls import reverse
 from django.utils.html import format_html
 
-from artlog.models import Artwork, SocialLink
+from artlog.models import Artwork, SocialLink, CommissonsStatus
 
 @admin.register(Artwork)
 class ArtworkAdmin(admin.ModelAdmin):
@@ -24,3 +25,25 @@ class SocialLinkAdmin(admin.ModelAdmin):
             '<img src="{}" alt="" style="height:28px;padding:3px;border-radius:6px;background:#b1684f">',
             obj.icon.url,
         )
+
+@admin.register(CommissonsStatus)
+class CommissonStatusAdmin(admin.ModelAdmin):
+    list_display = ("commissons_status", "edit_link")
+
+    def edit_link(self, obj):
+        url = reverse(
+            "admin:%s_%s_change" % (
+                obj._meta.app_label,
+                obj._meta.model_name
+            ),
+            args=[obj.pk]
+        )
+        return format_html('<a href="{}">Изменить</a>', url)
+
+    edit_link.short_description = ""
+
+    def has_add_permission(self, request):
+        return not CommissonsStatus.objects.exists()
+
+    def has_delete_permission(self, request, obj = None):
+        return False

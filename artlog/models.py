@@ -36,3 +36,16 @@ class SocialLink(models.Model):
 
     def __str__(self):
         return self.title
+
+class CommissonsStatus(models.Model):
+    commissons_status = models.BooleanField(
+        default=True,
+        verbose_name="Статус коммишек"
+    )
+
+    class Meta:
+        verbose_name = "Нвстройки сайта"
+        verbose_name_plural = "Настройки сайта"
+
+    def __str__(self):
+        return "Настройки сайта"

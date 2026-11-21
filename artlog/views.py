@@ -1,10 +1,10 @@
 from django.shortcuts import render
 
 from django.shortcuts import render, get_object_or_404
-from .models import Artwork
+from .models import Artwork, CommissonsStatus
 
-# Статус комиссий на главной: True -> OPEN (зелёный), False -> CLOSED (красный)
-COMMISSIONS_OPEN = True
+
+
 
 # Прайс-лист: (название группы, [(услуга, цена в USD), ...])
 PRICE_GROUPS = [
@@ -30,6 +30,12 @@ PRICE_GROUPS = [
 
 
 def index(request):
+    status = CommissonsStatus.objects.first()
+
+    # # Статус комиссий на главной: True -> OPEN (зелёный), False -> CLOSED (красный)
+    COMMISSIONS_OPEN = (
+        status.commissons_status if status else True
+    )
     context = {
         "commissions_open": COMMISSIONS_OPEN,
         "price_groups": PRICE_GROUPS,

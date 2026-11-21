@@ -1,0 +1,116 @@
+/* ==========================================================
+   Анимированный фон: дрейфующая мозаика + переливающийся градиент сверху.
+   Каждый слой какое-то время едет в одну сторону, плавно тормозит,
+   разворачивается и едет обратно. Так до бесконечности.
+   Подключается ПОСЛЕ style.css. Картинки не нужны: мозаика нарисована
+   прямо здесь (SVG внутри CSS). Слои и цвета повторяют макет Figma.
+
+   Чтобы фон не начинался заново при переходе на другую страницу, небольшой
+   скрипт в <head> шаблона base.html считает положение анимации по часам и
+   кладёт его в переменные --bg-flow-delay и --bg-drift-delay (ниже они
+   используются как animation-delay). Без скрипта всё работает, но фон
+   стартует с начала на каждой странице.
+   ========================================================== */
+
+:root {
+  --bg-base: #ffeeba;     /* цвет под всем фоном (как в макете) */
+
+  /* Время движения в ОДНУ сторону, после этого слой разворачивается.
+     Полный цикл туда-обратно вдвое дольше. Значения разные, чтобы слои
+     разворачивались не одновременно. */
+  --bg-flow: 54s;         /* градиент */
+  --bg-drift: 10s;        /* мозаика */
+  --bg-ease: cubic-bezier(0.37, 0, 0.63, 1);  /* плавный разгон и торможение */
+
+  /* Палитра градиента: цвета идут по кругу и замыкаются на первом.
+     Всё лежит поверх кремовой подложки с прозрачностью 76%, поэтому
+     выглядит пастельно. Можно менять цвета и добавлять/убирать их. */
+  --g1: #00ffe5;          /* бирюзовый (верх макета) */
+  --g2: #6aeaa0;          /* мятный */
+  --g3: #e8c840;          /* золотистый */
+  --g4: #ff9f7a;          /* персиковый */
+  --g5: #b79cf0;          /* лавандовый */
+  --g6: #62b8f8;          /* голубой */
+
+  /* --flow-size: длина одного круга цветов в пикселях. Чем больше, тем меньше
+                  разных цветов видно на экране одновременно.
+     --flow-travel: на сколько пикселей уезжает градиент за одну сторону.
+                  Чем больше, тем дальше и быстрее он плывёт (скорость = путь / время).
+     Сдвиг идёт строго вдоль градиента: (sin 170°, -cos 170°) * путь. */
+  --flow-size: 2400px;
+  --flow-travel: 2400px;
+  --flow-dx: calc(var(--flow-travel) * 0.17364818);
+  --flow-dy: calc(var(--flow-travel) * 0.98480775);
+
+  /* Мозаика: размер плитки и путь по диагонали за одну сторону */
+  --tile-size: 160px;     /* плитка 2x2 клетки по 80px */
+  --tile-travel: 240px;
+
+  /* Плитка 160x160: две тёмные клетки по диагонали, одна в косую полоску, одна пустая.
+     Чтобы взять свою картинку из Figma, замените на:  url("../img/bg-tile.png")  */
+  --tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cdefs%3E%3Cpattern id='s' width='5.66' height='5.66' patternUnits='userSpaceOnUse' patternTransform='rotate(45)'%3E%3Crect width='2.83' height='5.66' fill='%234f492f'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='80' height='80' fill='%234f492f'/%3E%3Crect x='80' y='80' width='80' height='80' fill='%234f492f'/%3E%3Crect x='80' width='80' height='80' fill='url(%23s)'/%3E%3C/svg%3E");
+}
+
+/* Перебивает старый статичный фон из style.css */
+body { background: var(--bg-base); }
+
+/* Оба слоя лежат под страницей и не мешают кликам */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* ---------- Нижний слой: мозаика ----------
+   Слой больше экрана на величину пути и едет по диагонали вниз-влево,
+   а потом обратно. background-position выравнивает плитку по краю экрана. */
+body::before {
+  top: calc(var(--tile-travel) * -1);
+  left: 0;
+  width: calc(100% + var(--tile-travel));
+  height: calc(100% + var(--tile-travel));
+  background: var(--tile) 0 var(--tile-travel) / var(--tile-size) var(--tile-size) repeat;
+  animation: bg-drift var(--bg-drift) var(--bg-ease) infinite alternate;
+  animation-delay: var(--bg-drift-delay, 0s);   /* подставляет скрипт из base.html */
+}
+
+@keyframes bg-drift {
+  to { transform: translate(calc(var(--tile-travel) * -1), var(--tile-travel)); }
+}
+
+/* ---------- Верхний слой: градиент ----------
+   Градиент под углом 170° (почти вертикальный, с лёгким наклоном) с повтором.
+   Слой больше экрана на величину пути и едет вниз, потом обратно, поэтому
+   экран всегда закрыт градиентом. Прозрачность 76% как в макете. */
+body::after {
+  top: calc(var(--flow-dy) * -1);
+  left: calc(var(--flow-dx) * -1);
+  width: calc(100% + var(--flow-dx));
+  height: calc(100% + var(--flow-dy));
+  opacity: 0.76;
+  background-image: repeating-linear-gradient(
+    170deg,
+    var(--g1) 0,
+    var(--g2) calc(var(--flow-size) / 6),
+    var(--g3) calc(var(--flow-size) / 6 * 2),
+    var(--g4) calc(var(--flow-size) / 6 * 3),
+    var(--g5) calc(var(--flow-size) / 6 * 4),
+    var(--g6) calc(var(--flow-size) / 6 * 5),
+    var(--g1) var(--flow-size)
+  );
+  animation: bg-flow var(--bg-flow) var(--bg-ease) infinite alternate;
+  animation-delay: var(--bg-flow-delay, 0s);    /* подставляет скрипт из base.html */
+}
+
+@keyframes bg-flow {
+  to { transform: translate(var(--flow-dx), var(--flow-dy)); }
+}
+
+/* Тем, у кого в системе отключены анимации, фон остаётся неподвижным */
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after { animation: none; }
+}
